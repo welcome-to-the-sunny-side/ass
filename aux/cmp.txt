@@ -1,0 +1,11 @@
+Benchmark 1: ./fenwick_cpp.bin < tests.txt
+  Time (mean ± σ):     142.1 ms ±  16.0 ms    [User: 134.5 ms, System: 7.1 ms]
+  Range (min … max):   123.4 ms … 174.1 ms    21 runs
+ 
+Benchmark 2: ./fenwick_asm.bin < tests.txt
+  Time (mean ± σ):     141.5 ms ±  20.5 ms    [User: 133.2 ms, System: 7.9 ms]
+  Range (min … max):   127.3 ms … 220.3 ms    22 runs
+ 
+Summary
+  ./fenwick_asm.bin < tests.txt ran
+    1.00 ± 0.18 times faster than ./fenwick_cpp.bin < tests.txt
