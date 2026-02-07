@@ -10,6 +10,8 @@ Put read-only constants in `.section .rodata`. This is pretty convenient for str
 
 ---
 
+#### Labels
+
 Labels are a bit "special" syntactically in that their use varies with the context. Fundamentally, a label is just a symbolic name (w.r.t. the assembler) that holds an address to a certain part of your code. 
 
 For instance, with data:
@@ -54,3 +56,42 @@ A note on the PIE (position independent executable) stuff mentioned earlier:
 - For external symbols in shared libraries (not just other object files you link statically), access goes through the GOT (Global Offset Table) and PLT (Procedure Linkage Table), since the relative offset to those symbols isn't known until runtime.
 
 ---
+
+#### I/O with libc:
+
+- Before calling `printf`, have the address of the format string ready in `rdi`, and the values of variables you reference in the format string, in `rsi`, `rdx`, `rcx` etc.
+- Before calling `scanf`, have the address of the format string ready in `rdi` and the addresses to variables you reference in the format string, in `rsi`, `rdx`, `rcx` etc. `scanf` is exposed as `__isoc99_scanf` sometimes.
+
+Note: 
+- When calling variadic (variable number of parameters) functions in `libc`, `al` (lowest byte of `rax`) is used to indicate how many `xmm` registers were used to pass floating point/vector arguments to the call. So set this value correctly if you're actually passing floating point arguments, and just clear the register otherwise.
+
+---
+
+#### Dealing with conditional logic 
+
+Any instruction that performs an arithmetic computation (bitwise stuff included) sets certain flags. These flags are used (along with jumps (`jmp`) and conditional moves (`cmov`)) to handle conditional stuff in assembly.
+
+To set flags conveniently, there are two dedicated instructions which allow us to set flags without modifying the operand registers/having to actually store the result somewhere. These are `cmp` and `test`.
+
+1. `cmp src dst`: computes `dst - src`, sets flags based on the result, and throws away the result. Commonly used for inequalities. Flags set by this instruction:
+    a. `ZF` (zero flag): set if `dst == src` duh.
+    b. `SF` (sign flag): if the MSB of the result is set (which implies that the result is negative if interpreted as signed, so `dst < src`).
+    c. `CF` (carry flag): if an unsigned carry happened (so `dst < src` unsigned).
+    d. `OF` (overflow flag): if `dst - src` overflows.
+2. `test src dst`: computes `dst & src`, sets flags based on the result, and throws away the result. Commonly used for comparing a value to 0.
+
+Here's a little cheat-sheet for how to use `jmp` in particular:
+
+```asm
+cmpq $reg2, %reg1
+je   equal_zero          # reg1 - reg2 = 0
+jne  nonzero             # reg1 - reg2 != 0
+jg   greater_signed      # > 0 signed
+jge  ge_signed           # >= 0 signed
+jl   less_signed         # < 0 signed
+jle  le_signed           # <= 0 signed
+ja   greater_unsigned    # > 0 unsigned
+jae  ge_unsigned         # >= 0 unsigned
+jb   less_unsigned       # < 0 unsigned
+jbe  le_unsigned         # <= 0 unsigned
+```
