@@ -2,18 +2,12 @@
 
 .section .rodata
 
-# input 1 integer
 ip_string_1:
     .string "%ld"
-
-# input 2 integers
 ip_string_2:
     .string "%ld %ld"
-
 ip_string_3:
     .string "%ld %ld %ld"
-
-# output one integer
 op_string_1:
     .string "%ld\n"
 
@@ -26,7 +20,7 @@ op_string_1:
 .extern calloc
 .extern free
 
-# modify(pointer to fenwick array, n, x, v)
+# modify(ptr, n, x, v)
 update:
     jmp update_test
 
@@ -41,7 +35,7 @@ update:
     
     ret
 
-# query(pointer to fenwick array, x)
+# query(ptr, x)
 answer:
     xor %eax, %eax
 
