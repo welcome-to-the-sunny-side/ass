@@ -80,10 +80,10 @@ To set flags conveniently, there are two dedicated instructions which allow us t
     d. `OF` (overflow flag): if `dst - src` overflows.
 2. `test src dst`: computes `dst & src`, sets flags based on the result, and throws away the result. Commonly used for comparing a value to 0.
 
-Here's a little cheat-sheet for how to use `jmp` in particular:
+Here's a little cheat-sheet for how to use `cmp` with `jmp` in particular:
 
 ```asm
-cmpq $reg2, %reg1
+cmpq %reg2, %reg1
 je   equal_zero          # reg1 - reg2 = 0
 jne  nonzero             # reg1 - reg2 != 0
 jg   greater_signed      # > 0 signed
@@ -95,3 +95,26 @@ jae  ge_unsigned         # >= 0 unsigned
 jb   less_unsigned       # < 0 unsigned
 jbe  le_unsigned         # <= 0 unsigned
 ```
+
+A similar list for `test` and `jmp`:
+
+```
+testq %reg, %reg
+je   is_zero             # (reg & reg) == 0  <=> reg == 0   (ZF=1)
+jne  nonzero             # reg != 0          (ZF=0)
+js   negative            # SF=1  (high bit set)
+jns  nonnegative         # SF=0
+```
+
+---
+
+Addressing with displacement and scaling: `D(reg1, reg2, S)` computes the address `D + reg1 + reg2 * S`. Certain components can be left out.
+
+Note:
+- `D` can be negative too.
+- `S`, the scale, can only be 1, 2, 4, or 8.
+- `D(, reg2, S)` is also legal.
+
+---
+
+#### 
