@@ -117,4 +117,41 @@ Note:
 
 ---
 
-#### 
+#### Memory in ELF on x86-64
+
+There are 3 common sections to put global/static data in:
+1. `.rodata`: as the name suggests, this is used to store read-only data that you can initialize with desired values (for instance, format strings used for i/o). Data in this section contributes to the size of the executable file.
+2. `.data`: like `.rodata`, but bytes in this section can be modified. This section also contributes to the size of the executable.
+3. `.bss`: Bytes stored in this section can be modified and are necessarily zeroed out initially. This section doesn't contribute much to the size of the executable (except for a tiny amount of metadata). Prefer storing huge arrays here.
+
+
+##### Data Types:
+
+Common Types:
+1. `.byte <hex/decimal>` : stores a byte, duh.
+2. `.word <hex/decimal>` : 16-bit/2 bytes (also `.short <hex/decimal>`).
+3. `.long <hex/decimal>` : 32-bit/4 bytes (also `.int <hex/decimal>`).
+4. `.quad <hex/decimal>` : 64-bit/8 bytes.
+5. `.asciz "hello wrld"` : A null terminated C-style string (also `.string "hello wrld"`).
+6. `.ascii "hello wrld"` : The same as `.asciz`, but not null-terminated.
+7. `.float 3.14`         : 32-bit IEEE754.
+8. `.double 3.14`        : 64-bit IEEE754.
+
+Vector-ish stuff:
+1. `.space n, x` : emit `n` bytes with value `x` each.
+2. `.zero n` : essentially `.space n, 0`.
+3. `.fill n, s, x` : emit `n` elements, each `s` bytes, have a `s`-byte value of `x` (little-endian). `s` may be 1, 2, 4, or 8.
+
+Alignment:
+1. `.balign n` : adds bytes until we're aligned to a `n`-multiple boundary.
+2. `.p2align n` : adds bytes until we're aligned to a `2^n`-multiple boundary.
+
+Note: remember, you can only have zeroed out bytes in `.bss`!!!
+
+---
+
+#### Stack alignment 
+
+According to the SysV AMD64 ABI, one must have `rsp % 16 == 0` immediately before making a procedural call. Note that this means that upon entering any procedure (including `main`), we're going to have `rsp % 8 == 0`, as the caller would have pushed its return address.
+
+---
