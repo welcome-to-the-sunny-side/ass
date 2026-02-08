@@ -37,9 +37,9 @@ add:
 
 Uses as memory:
 
-1. `foo` : memory at label `foo` (dereference address)
+1. `foo` : typically, memory at label `foo` (dereference address). `lea` is an exception as usual. Fuck `lea`.
 2. `$foo` : the actual address
-3. `foo(%rip)` : used to access memory at label `foo`, similarly to use case 1, but in a position-independence-friendly manner.
+3. `foo(%rip)` : used to access memory at label `foo`, similarly to use case 1, but in a position-independence-friendly manner. Do not confuse this with the `D(register)` addressing mode.
 4. `leaq foo(%rip), %rdi` : load the address that `foo` into a register, similarly to use case 2, but in a position-independence-friendly manner.
 
 Uses for control flow:
@@ -141,6 +141,7 @@ Vector-ish stuff:
 1. `.space n, x` : emit `n` bytes with value `x` each.
 2. `.zero n` : essentially `.space n, 0`.
 3. `.fill n, s, x` : emit `n` elements, each `s` bytes, have a `s`-byte value of `x` (little-endian). `s` may be 1, 2, 4, or 8.
+4. `.<type> <val1>, <val2>, <val3>, <val4> ... <valm>` will initialize m objects with the corresponding values one after the other. For example, `.byte 1, 2, 255`.
 
 Alignment:
 1. `.balign n` : adds bytes until we're aligned to a `n`-multiple boundary.
@@ -153,5 +154,15 @@ Note: remember, you can only have zeroed out bytes in `.bss`!!!
 #### Stack alignment 
 
 According to the SysV AMD64 ABI, one must have `rsp % 16 == 0` immediately before making a procedural call. Note that this means that upon entering any procedure (including `main`), we're going to have `rsp % 8 == 0`, as the caller would have pushed its return address.
+
+---
+
+#### Caller Saved Registers
+
+`rax`, `rcx`, `rdx`, `rsi`, `rdi`, `r8`-`r11`, and `xmm0`-`xmm15`
+
+#### Callee Saved Registers
+
+`rbx`, `rbp`, `r12`-`r15`
 
 ---
