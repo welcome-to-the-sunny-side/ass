@@ -153,7 +153,7 @@ Note: remember, you can only have zeroed out bytes in `.bss`!!!
 
 #### Stack alignment 
 
-According to the SysV AMD64 ABI, one must have `rsp % 16 == 0` immediately before making a procedural call. Note that this means that upon entering any procedure (including `main`), we're going to have `rsp % 8 == 0`, as the caller would have pushed its return address.
+According to the SysV AMD64 ABI, one must have `rsp % 16 == 0` immediately before making a procedural call. Note that this means that upon entering any procedure (including `main`), we're going to have `rsp % 16 == 8`, as the caller would have pushed its return address.
 
 ---
 
@@ -164,5 +164,9 @@ According to the SysV AMD64 ABI, one must have `rsp % 16 == 0` immediately befor
 #### Callee Saved Registers
 
 `rbx`, `rbp`, `r12`-`r15`
+
+---
+
+It's annoying, but you cannot dereference addresses stored in memory (on the stack/`.data`/whatever) directly, as any instruction can perform at most one memory access on x86-64.
 
 ---
