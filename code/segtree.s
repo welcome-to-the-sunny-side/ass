@@ -25,29 +25,131 @@ segtree_array:
 .extern scanf
 .extern calloc
 
+# void merge(int v)
+merge:
+    # leaf
+    movq segtree_array(%rip), %rsi
+    leaq (, %rdi, 8), %rdi
+    leaq (%rsi, %rdi, 2), %rsi
+    movq (%rsi), %rdx
+    addq $8, %rsi
+    addq (%rsi), %rdx
+    subq %rdi, %rsi
+    subq $8, %rsi
+    movq %rdx, (%rsi)
+    ret
 
 # void update(v, l, r, qi, x)
 update:
-    cmpq $rsi, $rdx
+    cmpq %rsi, %rdx
     jne update_go_down
 
-    leaq segtree_array(%rip), %r9
-    addq %r8, (%r9, %rcx, 8)
+    movq segtree_array(%rip), %r9
+    addq %r8, (%r9, %rdi, 8)
     ret
 
     update_go_down:
     subq $8, %rsp
 
     leaq (%rsi, %rdx, 1), %r9
-    shrq %r9
+    shrq $1, %r9
 
-    
+    cmpq %r9, %rcx
+    jg update_go_right
+    update_go_left:
+        movq %rdi, (%rsp)
 
+        shlq $1, %rdi
+        movq %r9, %rdx
+        call update
+
+        movq (%rsp), %rdi
+        call merge
+
+        jmp update_done
+
+    update_go_right:
+        movq %rdi, (%rsp)
+
+        leaq 1(, %rdi, 2), %rdi
+        leaq 1(%r9), %rsi
+        call update
+
+        movq (%rsp), %rdi
+        call merge
+
+    update_done:
     addq $8, %rsp
     ret
 
+
+
 # int query(v, l, r, ql, qr)
 query:
+    # l > r or qr < l or r < ql
+    cmpq %rsi, %rdx
+    jl query_null
+    cmpq %r8, %rsi
+    jg query_null
+    cmpq %rdx, %rcx
+    jg query_null
+
+    # ql <= l and r <= qr
+    cmpq %rsi, %rcx
+    setle %r9b
+    cmpq %rdx, %r8
+    setge %r10b
+    testb %r9b, %r10b
+    jne query_contained
+
+    query_done:
+        subq $16, %rsp
+        leaq (%rsi, %rdx, 1), %r9
+        movq %r9, (%rsp)
+        shrq $1, (%rsp)
+
+        # left child
+        pushq %rdi
+        pushq %rsi
+        pushq %rdx
+
+        shlq $1, %rdi
+        movq 24(%rsp), %rdx
+
+        call query
+
+        popq %rdx
+        popq %rsi
+        popq %rdi
+
+        movq %rax, 8(%rsp)
+
+
+        # right child
+        movq (%rsp), %rsi
+        addq $1, %rsi
+        leaq 1(, %rdi, 2), %rdi
+
+        addq $8, %rsp
+
+        call query
+
+        # merge
+        addq (%rsp), %rax
+
+        addq $8, %rsp
+        ret
+
+    query_null:
+        movq $0, %rax
+        ret
+
+    query_contained:
+        # return segtree[v]
+        movq segtree_array(%rip), %r10
+        leaq (%r10, %rdi, 8), %r10
+        movq (%r10), %rax
+        ret
 
 
 main:
@@ -102,8 +204,8 @@ main:
             call printf
     qtest:
         subq $1, q(%rip)
-        testq q(%rip), q(%rip)
-        jns qloop
+        cmpq $0, q(%rip)
+        jge qloop
 
     leave
     ret

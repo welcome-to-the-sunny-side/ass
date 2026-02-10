@@ -69,7 +69,7 @@ Note:
 
 #### Dealing with conditional logic 
 
-Any instruction that performs an arithmetic computation (bitwise stuff included) sets certain flags. These flags are used (along with jumps (`jmp`) and conditional moves (`cmov`)) to handle conditional stuff in assembly.
+Any instruction that performs an arithmetic computation (bitwise stuff included) sets certain flags. These flags are used (along with jumps (`jmp`), sets (`set`) and conditional moves (`cmov`)) to handle conditional stuff in assembly.
 
 To set flags conveniently, there are two dedicated instructions which allow us to set flags without modifying the operand registers/having to actually store the result somewhere. These are `cmp` and `test`.
 
@@ -168,5 +168,9 @@ According to the SysV AMD64 ABI, one must have `rsp % 16 == 0` immediately befor
 ---
 
 It's annoying, but you cannot dereference addresses stored in memory (on the stack/`.data`/whatever) directly, as any instruction can perform at most one memory access on x86-64.
+
+---
+
+`lea` cannot write to memory.
 
 ---
