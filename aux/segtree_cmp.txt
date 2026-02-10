@@ -1,0 +1,5 @@
+Benchmark 1: ./segtree_asm.bin < tests.txt
+  Time (mean ± σ):     323.9 ms ±  37.8 ms    [User: 312.8 ms, System: 10.2 ms]
+  Range (min … max):   301.3 ms … 425.9 ms    10 runs
+ 
+Benchmark 2: ./segtree_fast_cpp.bin < tests.txt
